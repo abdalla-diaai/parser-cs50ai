@@ -6,23 +6,21 @@ from nltk.tokenize import word_tokenize
 TERMINALS = """
 Adj -> "country" | "dreadful" | "enigmatical" | "little" | "moist" | "red"
 Adv -> "down" | "here" | "never"
-Conj -> "and" | "until"
+Conj -> "and" | "until" | "today"
 Det -> "a" | "an" | "his" | "my" | "the"
-N -> "armchair" | "companion" | "day" | "door" | "hand" | "he" | "himself"
+N -> "armchair" | "companion" | "day" | "door" | "hand" | "he" | "himself" | "school"
 N -> "holmes" | "home" | "i" | "mess" | "paint" | "palm" | "pipe" | "she"
 N -> "smile" | "thursday" | "walk" | "we" | "word"
 P -> "at" | "before" | "in" | "of" | "on" | "to"
-V -> "arrived" | "came" | "chuckled" | "had" | "lit" | "said" | "sat"
+V -> "arrived" | "came" | "chuckled" | "had" | "lit" | "said" | "sat" | "went"
 V -> "smiled" | "tell" | "were"
 """
 
 NONTERMINALS = """
-    S -> NP VP
-
-    AP -> A | A AP
-    NP -> N | D NP | AP NP | N PP
+    S -> NP VP | S Conj S
+    NP -> Det N | Det N PP | N | Det Adj N | Adj N | Det N P Det N | N Conj
+    VP -> V NP | V NP PP | V | Conj V | VP Conj VP | V Adv | V Adv PP | V PP
     PP -> P NP
-    VP -> V | V NP | V NP PP
 """
 
 grammar = nltk.CFG.fromstring(NONTERMINALS + TERMINALS)
@@ -82,20 +80,15 @@ def np_chunk(tree):
     noun phrases as subtrees.
     """
     chuncks = []
-    # check if tree has subtrees
-    if tree.subtrees():
-        print("true")
-    
+    revised_chuncks = []
     # iterate through subtrees
     for subtree in tree.subtrees():
         if subtree.label() == "NP":
-            if not subtree.subtrees():
-                chuncks.append(subtree)
-
-
-
-    return chuncks
-
+            chuncks.append(subtree)
+    for chunck in chuncks:
+        if all(child.label() != "NP" for child in chunck[1: ]):
+            revised_chuncks.append(chunck)
+    return revised_chuncks
 
 if __name__ == "__main__":
     main()

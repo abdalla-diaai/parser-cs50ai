@@ -1,4 +1,4 @@
 from parser import *
 
-sentence = "Adam, does not Like writing! AT ALL, 29"
+sentence = "I had a little moist red paint in the palm of my hand."
 print(preprocess(sentence))
