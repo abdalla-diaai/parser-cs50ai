@@ -1,7 +1,7 @@
 import nltk
 import sys
 from nltk.tokenize import word_tokenize
-nltk.download('punkt_tab')
+# nltk.download('punkt_tab')
 
 TERMINALS = """
 Adj -> "country" | "dreadful" | "enigmatical" | "little" | "moist" | "red"
@@ -81,7 +81,20 @@ def np_chunk(tree):
     whose label is "NP" that does not itself contain any other
     noun phrases as subtrees.
     """
-    raise NotImplementedError
+    chuncks = []
+    # check if tree has subtrees
+    if tree.subtrees():
+        print("true")
+    
+    # iterate through subtrees
+    for subtree in tree.subtrees():
+        if subtree.label() == "NP":
+            if not subtree.subtrees():
+                chuncks.append(subtree)
+
+
+
+    return chuncks
 
 
 if __name__ == "__main__":
