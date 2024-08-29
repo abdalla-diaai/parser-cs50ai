@@ -1,6 +1,8 @@
 import nltk
 import sys
 from nltk.tokenize import word_tokenize
+from nltk.tree import *
+
 # nltk.download('punkt_tab')
 
 TERMINALS = """
@@ -8,11 +10,11 @@ Adj -> "country" | "dreadful" | "enigmatical" | "little" | "moist" | "red"
 Adv -> "down" | "here" | "never"
 Conj -> "and" | "until" | "today"
 Det -> "a" | "an" | "his" | "my" | "the"
-N -> "armchair" | "companion" | "day" | "door" | "hand" | "he" | "himself" | "school"
+N -> "armchair" | "companion" | "day" | "door" | "hand" | "he" | "himself" | "school" | "dog" | "man" | "park"
 N -> "holmes" | "home" | "i" | "mess" | "paint" | "palm" | "pipe" | "she"
 N -> "smile" | "thursday" | "walk" | "we" | "word"
 P -> "at" | "before" | "in" | "of" | "on" | "to"
-V -> "arrived" | "came" | "chuckled" | "had" | "lit" | "said" | "sat" | "went"
+V -> "arrived" | "came" | "chuckled" | "had" | "lit" | "said" | "sat" | "went" | "saw"
 V -> "smiled" | "tell" | "were"
 """
 
@@ -67,7 +69,9 @@ def preprocess(sentence):
     and removing any word that does not contain at least one alphabetic
     character.
     """
+    # tokenize sentence and add to list
     sentence_list = word_tokenize(sentence)
+
     sentence_list = [x.lower() for x in sentence_list if x.isalpha()]
     return sentence_list
 
@@ -80,15 +84,22 @@ def np_chunk(tree):
     noun phrases as subtrees.
     """
     chuncks = []
-    revised_chuncks = []
     # iterate through subtrees
     for subtree in tree.subtrees():
         if subtree.label() == "NP":
-            chuncks.append(subtree)
-    for chunck in chuncks:
-        if all(child.label() != "NP" for child in chunck[1: ]):
-            revised_chuncks.append(chunck)
-    return revised_chuncks
+            # add shallow subtree immediately
+            if len(subtree) == 1:
+                chuncks.append(subtree)
+            else:
+                # if count of NPs is one add it to the list
+                NP_count = 0
+                for sub in subtree.subtrees():
+                    if sub.label() == "NP":
+                        NP_count += 1
+                if NP_count == 1:
+                    chuncks.append(subtree)
+    return chuncks
+
 
 if __name__ == "__main__":
     main()
